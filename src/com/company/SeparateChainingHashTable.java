@@ -8,10 +8,10 @@ import java.util.List;
 // CONSTRUCTION: an approximate initial size or default of 101
 //
 // ******************PUBLIC OPERATIONS*********************
-// void insert( x )       --> Insert x
-// void remove( x )       --> Remove x
-// boolean contains( x )  --> Return true if x is present
-// void makeEmpty( )      --> Remove all items
+// void insert(x)       --> Insert x
+// void remove(x)       --> Remove x
+// boolean contains(x)  --> Return true if x is present
+// void makeEmpty( )    --> Remove all items
 
     /**
      * Separate chaining table implementation of hash tables.
@@ -20,12 +20,17 @@ import java.util.List;
 
     public class SeparateChainingHashTable<AnyType>
     {
+        private static final int DEFAULT_TABLE_SIZE = 101;
+
+        /** The array of Lists. */
+        private List<AnyType> [ ] theLists;
+        private int currentSize;
+
         /**
          * Construct the hash table.
          */
-        public SeparateChainingHashTable( )
-        {
-            this( DEFAULT_TABLE_SIZE );
+        public SeparateChainingHashTable() {
+            this(DEFAULT_TABLE_SIZE);
         }
 
         /**
@@ -33,11 +38,10 @@ import java.util.List;
          * @param size approximate table size.
          */
         @SuppressWarnings("unchecked")
-        public SeparateChainingHashTable( int size )
-        {
-            theLists = new LinkedList[ nextPrime( size ) ];
-            for( int i = 0; i < theLists.length; i++ )
-                theLists[ i ] = new LinkedList<AnyType>( );
+        public SeparateChainingHashTable(int size){
+            theLists = new LinkedList[nextPrime(size)];
+            for(int i = 0; i < theLists.length; i++)
+                theLists[i] = new LinkedList<AnyType>();
         }
 
         /**
@@ -45,16 +49,14 @@ import java.util.List;
          * already present, then do nothing.
          * @param x the item to insert.
          */
-        public void insert( AnyType x )
-        {
-            List<AnyType> whichList = theLists[ myhash( x ) ];
-            if( !whichList.contains( x ) )
-            {
-                whichList.add( x );
+        public void insert(AnyType x) {
+            List<AnyType> whichList = theLists[myhash(x)];
+            if(!whichList.contains(x)) {
+                whichList.add(x);
 
                 // Rehash; see Section 5.5
-                if( ++currentSize > theLists.length )
-                    rehash( );
+                if(++currentSize > theLists.length)
+                    rehash();
             }
         }
 
@@ -62,12 +64,10 @@ import java.util.List;
          * Remove from the hash table.
          * @param x the item to remove.
          */
-        public void remove( AnyType x )
-        {
-            List<AnyType> whichList = theLists[ myhash( x ) ];
-            if( whichList.contains( x ) )
-            {
-                whichList.remove( x );
+        public void remove(AnyType x) {
+            List<AnyType> whichList = theLists[myhash(x)];
+            if(whichList.contains(x)) {
+                whichList.remove(x);
                 currentSize--;
             }
         }
@@ -77,19 +77,17 @@ import java.util.List;
          * @param x the item to search for.
          * @return true if x isnot found.
          */
-        public boolean contains( AnyType x )
-        {
-            List<AnyType> whichList = theLists[ myhash( x ) ];
-            return whichList.contains( x );
+        public boolean contains(AnyType x) {
+            List<AnyType> whichList = theLists[myhash(x)];
+            return whichList.contains(x);
         }
 
         /**
          * Make the hash table logically empty.
          */
-        public void makeEmpty( )
-        {
-            for( int i = 0; i < theLists.length; i++ )
-                theLists[ i ].clear( );
+        public void makeEmpty( ) {
+            for(int i = 0; i < theLists.length; i++)
+                theLists[i].clear();
             currentSize = 0;
         }
 
@@ -99,65 +97,56 @@ import java.util.List;
          * @param tableSize the size of the hash table.
          * @return the hash value.
          */
-        public static int hash( String key, int tableSize )
-        {
+        public static int hash(String key, int tableSize) {
             int hashVal = 0;
 
-            for( int i = 0; i < key.length( ); i++ )
-                hashVal = 37 * hashVal + key.charAt( i );
+            for(int i = 0; i < key.length(); i++)
+                hashVal = 37 * hashVal + key.charAt(i);
 
             hashVal %= tableSize;
-            if( hashVal < 0 )
+            if(hashVal < 0)
                 hashVal += tableSize;
 
             return hashVal;
         }
 
         @SuppressWarnings("unchecked")
-        private void rehash( )
-        {
+        private void rehash() {
             List<AnyType> [ ]  oldLists = theLists;
 
             // Create new double-sized, empty table
-            theLists = new List[ nextPrime( 2 * theLists.length ) ];
-            for( int j = 0; j < theLists.length; j++ )
-                theLists[ j ] = new LinkedList<AnyType>( );
+            theLists = new List[nextPrime(2 * theLists.length)];
+            for(int j = 0; j < theLists.length; j++)
+                theLists[j] = new LinkedList<AnyType>();
 
             // Copy table over
             currentSize = 0;
-            for( int i = 0; i < oldLists.length; i++ )
-                for( AnyType item : oldLists[ i ] )
-                    insert( item );
+            for(int i = 0; i < oldLists.length; i++)
+                for(AnyType item : oldLists[i])
+                    insert(item);
         }
 
-        private int myhash( AnyType x )
-        {
-            int hashVal = x.hashCode( );
+        private int myhash(AnyType x) {
+            int hashVal = x.hashCode();
 
             hashVal %= theLists.length;
-            if( hashVal < 0 )
+            if(hashVal < 0)
                 hashVal += theLists.length;
 
             return hashVal;
         }
 
-        private static final int DEFAULT_TABLE_SIZE = 101;
-
-        /** The array of Lists. */
-        private List<AnyType> [ ] theLists;
-        private int currentSize;
 
         /**
          * Internal method to find a prime number at least as large as n.
          * @param n the starting number (must be positive).
          * @return a prime number larger than or equal to n.
          */
-        private static int nextPrime( int n )
-        {
-            if( n % 2 == 0 )
+        private static int nextPrime(int n) {
+            if(n % 2 == 0)
                 n++;
 
-            for( ; !isPrime( n ); n += 2 )
+            for( ; !isPrime( n ); n += 2)
                 ;
 
             return n;
@@ -169,16 +158,15 @@ import java.util.List;
          * @param n the number to test.
          * @return the result of the test.
          */
-        private static boolean isPrime( int n )
-        {
-            if( n == 2 || n == 3 )
+        private static boolean isPrime(int n) {
+            if(n == 2 || n == 3)
                 return true;
 
-            if( n == 1 || n % 2 == 0 )
+            if(n == 1 || n % 2 == 0)
                 return false;
 
-            for( int i = 3; i * i <= n; i += 2 )
-                if( n % i == 0 )
+            for(int i = 3; i * i <= n; i += 2)
+                if(n % i == 0)
                     return false;
 
             return true;
@@ -186,26 +174,24 @@ import java.util.List;
 
 
         // Simple main
-        public static void main( String [ ] args )
-        {
-            SeparateChainingHashTable<Integer> H = new SeparateChainingHashTable<Integer>( );
+        public static void main(String [ ] args) {
+            SeparateChainingHashTable<Integer> H = new SeparateChainingHashTable<Integer>();
 
             final int NUMS = 40000;
             final int GAP  =   37;
 
-            System.out.println( "Checking... (no more output means success)" );
+            System.out.println("Checking... (no more output means success)");
 
-            for( int i = GAP; i != 0; i = ( i + GAP ) % NUMS )
-                H.insert( i );
-            for( int i = 1; i < NUMS; i+= 2 )
+            for(int i = GAP; i != 0; i = ( i + GAP ) % NUMS)
+                H.insert(i);
+            for(int i = 1; i < NUMS; i+= 2)
                 H.remove( i );
 
-            for( int i = 2; i < NUMS; i+=2 )
-                if( !H.contains( i ) )
+            for(int i = 2; i < NUMS; i+=2)
+                if(!H.contains(i))
                     System.out.println( "Find fails " + i );
 
-            for( int i = 1; i < NUMS; i+=2 )
-            {
+            for(int i = 1; i < NUMS; i+=2) {
                 if( H.contains( i ) )
                     System.out.println( "OOPS!!! " +  i  );
             }
